@@ -1,0 +1,31 @@
+2025-03-04T23:59:11.1185416Z TRACE:: Engine.Main(): LEAN ALGORITHMIC TRADING ENGINE v2.5.0.0 Mode: DEBUG (64bit) Host: Anus-Air
+2025-03-04T23:59:11.2488465Z TRACE:: Engine.Main(): Started 11:59 PM
+2025-03-04T23:59:11.2695783Z TRACE:: Config.Get(): Configuration key not found. Key: lean-manager-type - Using default value: LocalLeanManager
+2025-03-04T23:59:11.3117224Z TRACE:: JobQueue.NextJob(): Selected /LeanCLI/main.py
+2025-03-04T23:59:11.4029948Z TRACE:: Config.GetValue(): scheduled-event-leaky-bucket-capacity - Using default value: 120
+2025-03-04T23:59:11.4030845Z TRACE:: Config.GetValue(): scheduled-event-leaky-bucket-time-interval-minutes - Using default value: 1440
+2025-03-04T23:59:11.4032008Z TRACE:: Config.GetValue(): scheduled-event-leaky-bucket-refill-amount - Using default value: 18
+2025-03-04T23:59:11.4036599Z TRACE:: Config.GetValue(): storage-limit - Using default value: 10737418240
+2025-03-04T23:59:11.4037123Z TRACE:: Config.GetValue(): storage-permissions - Using default value: 3
+2025-03-04T23:59:11.4037770Z TRACE:: Config.Get(): Configuration key not found. Key: optimization-id - Using default value: 
+2025-03-04T23:59:11.4038488Z TRACE:: Config.Get(): Configuration key not found. Key: backtest-name - Using default value: local
+2025-03-04T23:59:11.4057799Z TRACE:: Config.Get(): Configuration key not found. Key: data-channel - Using default value: 
+2025-03-04T23:59:11.4059066Z TRACE:: Config.Get(): Configuration key not found. Key: python-venv - Using default value: 
+2025-03-04T23:59:11.4059758Z TRACE:: Config.Get(): Configuration key not found. Key: out-of-sample-max-end-date - Using default value: 
+2025-03-04T23:59:11.4060468Z TRACE:: Config.GetValue(): out-of-sample-days - Using default value: 0
+2025-03-04T23:59:11.4078331Z TRACE:: Config.Get(): Configuration key not found. Key: data-permission-manager - Using default value: DataPermissionManager
+2025-03-04T23:59:11.4224654Z TRACE:: Config.GetValue(): zip-data-cache-provider - Using default value: 10
+2025-03-04T23:59:11.4235951Z TRACE:: Config.Get(): Configuration key not found. Key: fundamental-data-provider - Using default value: CoarseFundamentalDataProvider
+2025-03-04T23:59:11.4247518Z TRACE:: AlgorithmManager.CreateTokenBucket(): Initializing LeakyBucket: Capacity: 120 RefillAmount: 18 TimeInterval: 1440
+2025-03-04T23:59:11.4250395Z TRACE:: Config.GetValue(): algorithm-manager-time-loop-maximum - Using default value: 20
+2025-03-04T23:59:11.4296721Z TRACE:: Engine.Run(): Resource limits '0' CPUs. 2147483647 MB RAM.
+2025-03-04T23:59:11.4299195Z TRACE:: TextSubscriptionDataSourceReader.SetCacheSize(): Setting cache size to 71582788 items
+2025-03-04T23:59:11.4703573Z TRACE:: Config.GetValue(): downloader-data-update-period - Using default value: 7
+2025-03-04T23:59:11.8189310Z TRACE:: DebuggerHelper.Initialize(): initializing python...
+2025-03-04T23:59:11.8192034Z TRACE:: PythonInitializer.Initialize(): start...
+2025-03-04T23:59:12.2278996Z TRACE:: PythonInitializer.Initialize(): ended
+2025-03-04T23:59:12.2280087Z TRACE:: DebuggerHelper.Initialize(): python initialization done
+2025-03-04T23:59:12.2280875Z TRACE:: DebuggerHelper.Initialize(): starting...
+2025-03-04T23:59:14.4561480Z TRACE:: DebuggerHelper.Initialize(): debugpy waiting for attach at port 5678...
+2025-03-05T00:00:11.8921154Z TRACE:: Isolator.ExecuteWithTimeLimit(): Used: 110, Sample: 110, App: 901, CurrentTimeStepElapsed: 00:00.000. CPU: 2%
+2025-03-05T00:01:11.9122539Z TRACE:: Isolator.ExecuteWithTimeLimit(): Used: 110, Sample: 110, App: 903, CurrentTimeStepElapsed: 00:00.000. CPU: 2%

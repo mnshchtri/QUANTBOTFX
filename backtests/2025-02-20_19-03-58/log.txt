@@ -1,0 +1,97 @@
+2025-02-21T00:03:59.4648190Z TRACE:: Engine.Main(): LEAN ALGORITHMIC TRADING ENGINE v2.5.0.0 Mode: DEBUG (64bit) Host: Anus-Air
+2025-02-21T00:03:59.4675200Z TRACE:: Engine.Main(): Started 12:03 AM
+2025-02-21T00:03:59.4696595Z TRACE:: Config.Get(): Configuration key not found. Key: lean-manager-type - Using default value: LocalLeanManager
+2025-02-21T00:03:59.4756472Z TRACE:: JobQueue.NextJob(): Selected /LeanCLI/main.py
+2025-02-21T00:03:59.4904801Z TRACE:: Config.GetValue(): scheduled-event-leaky-bucket-capacity - Using default value: 120
+2025-02-21T00:03:59.4905809Z TRACE:: Config.GetValue(): scheduled-event-leaky-bucket-time-interval-minutes - Using default value: 1440
+2025-02-21T00:03:59.4906430Z TRACE:: Config.GetValue(): scheduled-event-leaky-bucket-refill-amount - Using default value: 18
+2025-02-21T00:03:59.4910896Z TRACE:: Config.GetValue(): storage-limit - Using default value: 10737418240
+2025-02-21T00:03:59.4911509Z TRACE:: Config.GetValue(): storage-permissions - Using default value: 3
+2025-02-21T00:03:59.4912239Z TRACE:: Config.Get(): Configuration key not found. Key: optimization-id - Using default value: 
+2025-02-21T00:03:59.4912929Z TRACE:: Config.Get(): Configuration key not found. Key: backtest-name - Using default value: local
+2025-02-21T00:03:59.4928400Z TRACE:: Config.Get(): Configuration key not found. Key: data-channel - Using default value: 
+2025-02-21T00:03:59.4929867Z TRACE:: Config.Get(): Configuration key not found. Key: python-venv - Using default value: 
+2025-02-21T00:03:59.4930771Z TRACE:: Config.Get(): Configuration key not found. Key: out-of-sample-max-end-date - Using default value: 
+2025-02-21T00:03:59.4931199Z TRACE:: Config.GetValue(): out-of-sample-days - Using default value: 0
+2025-02-21T00:03:59.4937749Z TRACE:: Config.Get(): Configuration key not found. Key: data-permission-manager - Using default value: DataPermissionManager
+2025-02-21T00:03:59.5011769Z TRACE:: Config.GetValue(): zip-data-cache-provider - Using default value: 10
+2025-02-21T00:03:59.5017841Z TRACE:: Config.Get(): Configuration key not found. Key: fundamental-data-provider - Using default value: CoarseFundamentalDataProvider
+2025-02-21T00:03:59.5027271Z TRACE:: AlgorithmManager.CreateTokenBucket(): Initializing LeakyBucket: Capacity: 120 RefillAmount: 18 TimeInterval: 1440
+2025-02-21T00:03:59.5029979Z TRACE:: Config.GetValue(): algorithm-manager-time-loop-maximum - Using default value: 20
+2025-02-21T00:03:59.5062382Z TRACE:: Engine.Run(): Resource limits '0' CPUs. 2147483647 MB RAM.
+2025-02-21T00:03:59.5065318Z TRACE:: TextSubscriptionDataSourceReader.SetCacheSize(): Setting cache size to 71582788 items
+2025-02-21T00:03:59.5257546Z TRACE:: Config.GetValue(): downloader-data-update-period - Using default value: 7
+2025-02-21T00:03:59.8014724Z TRACE:: Config.GetValue(): algorithm-creation-timeout - Using default value: 90
+2025-02-21T00:03:59.8024764Z TRACE:: PythonInitializer.Initialize(): start...
+2025-02-21T00:04:00.2064480Z TRACE:: PythonInitializer.Initialize(): ended
+2025-02-21T00:04:00.2071858Z TRACE:: AlgorithmPythonWrapper(): Python version 3.11.9 | packaged by conda-forge | (main, Apr 19 2024, 18:26:34) [GCC 12.3.0]: Importing python module main
+2025-02-21T00:04:02.8606497Z TRACE:: AlgorithmPythonWrapper(): main successfully imported.
+2025-02-21T00:04:02.8637926Z TRACE:: AlgorithmPythonWrapper(): Creating IAlgorithm instance.
+2025-02-21T00:04:02.8685073Z TRACE:: Config.Get(): Configuration key not found. Key: databases-refresh-period - Using default value: 1.00:00:00
+2025-02-21T00:04:02.9663648Z TRACE:: Config.GetValue(): mute-python-library-logging - Using default value: True
+2025-02-21T00:04:02.9680044Z TRACE:: LocalObjectStore.Initialize(): Storage Root: /Storage. StorageFileCount 9999999. StorageLimit 10240MB
+2025-02-21T00:04:02.9706487Z TRACE:: Config.GetValue(): zip-data-cache-provider - Using default value: 10
+2025-02-21T00:04:02.9735072Z TRACE:: HistoryProviderManager.Initialize(): history providers [SubscriptionDataReaderHistoryProvider]
+2025-02-21T00:04:02.9748875Z TRACE:: BaseSetupHandler.Setup(LocalPlatform): UID: 230417, PID: 21050091, Version: 2.5.0.0, Source: WebIDE
+2025-02-21T00:04:02.9763434Z TRACE:: Config.Get(): Configuration key not found. Key: security-data-feeds - Using default value: 
+2025-02-21T00:04:03.0336886Z TRACE:: Event Name "GLD: EveryDay: 18", scheduled to run.
+2025-02-21T00:04:03.0342376Z TRACE:: Event Name "GLD: EveryDay: 1", scheduled to run.
+2025-02-21T00:04:03.0353347Z TRACE:: BacktestingResultHandler(): Sample Period Set: 32.40
+2025-02-21T00:04:03.0358990Z TRACE:: Config.GetValue(): forward-console-messages - Using default value: True
+2025-02-21T00:04:03.1137015Z ERROR:: Engine.Run(): During the algorithm initialization, the following exception has occurred: FirstTwoHourBreakoutEvaluator() takes no arguments
+  at Initialize
+    self.daily_breakout_evaluator = FirstTwoHourBreakoutEvaluator(self)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ in main.py: line 51
+ FirstTwoHourBreakoutEvaluator() takes no arguments
+2025-02-21T00:04:03.1141377Z TRACE:: JOB HANDLERS:
+         DataFeed:             QuantConnect.Lean.Engine.DataFeeds.FileSystemDataFeed
+         Setup:                QuantConnect.Lean.Engine.Setup.BacktestingSetupHandler
+         RealTime:             QuantConnect.Lean.Engine.RealTime.BacktestingRealTimeHandler
+         Results:              QuantConnect.Lean.Engine.Results.BacktestingResultHandler
+         Transactions:         QuantConnect.Lean.Engine.TransactionHandlers.BacktestingTransactionHandler
+         Object Store:         QuantConnect.Lean.Engine.Storage.LocalObjectStore
+         History Provider:     QuantConnect.Lean.Engine.HistoricalData.HistoryProviderManager
+         Brokerage:            QuantConnect.Brokerages.Backtesting.BacktestingBrokerage
+         Data Provider:        QuantConnect.Lean.Engine.DataFeeds.DefaultDataProvider
+
+2025-02-21T00:04:03.1143718Z TRACE:: FileSystemDataFeed.Exit(): Start. Setting cancellation token...
+2025-02-21T00:04:03.1150083Z TRACE:: FileSystemDataFeed.Exit(): Exit Finished.
+2025-02-21T00:04:03.1151385Z TRACE:: BacktestingResultHandler.Exit(): starting...
+2025-02-21T00:04:03.1182652Z TRACE:: BacktestingResultHandler.Exit(): Saving logs...
+2025-02-21T00:04:03.1189583Z TRACE:: StopSafely(): Waiting for 'Result Thread' thread to stop...
+2025-02-21T00:04:03.1189661Z ERROR:: During the algorithm initialization, the following exception has occurred: FirstTwoHourBreakoutEvaluator() takes no arguments
+  at Initialize
+    self.daily_breakout_evaluator = FirstTwoHourBreakoutEvaluator(self)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ in main.py: line 51
+ FirstTwoHourBreakoutEvaluator() takes no arguments
+ FirstTwoHourBreakoutEvaluator() takes no arguments
+  at Initialize
+    self.daily_breakout_evaluator = FirstTwoHourBreakoutEvaluator(self)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ in main.py: line 51
+ FirstTwoHourBreakoutEvaluator() takes no arguments
+2025-02-21T00:04:03.1191823Z TRACE:: Debug: Your log was successfully created and can be retrieved from: /Results/1499254366-log.txt
+2025-02-21T00:04:03.1192208Z TRACE:: BacktestingResultHandler.Run(): Ending Thread...
+2025-02-21T00:04:03.1536348Z TRACE:: 
+STATISTICS:: OrderListHash d41d8cd98f00b204e9800998ecf8427e
+2025-02-21T00:04:03.1536907Z TRACE:: BacktestingResultHandler.SendAnalysisResult(): Processed final packet
+2025-02-21T00:04:03.1538885Z TRACE:: Engine.Run(): Disconnecting from brokerage...
+2025-02-21T00:04:03.1540621Z TRACE:: Engine.Run(): Disposing of setup handler...
+2025-02-21T00:04:03.1541284Z TRACE:: Engine.Main(): Analysis Completed and Results Posted.
+2025-02-21T00:04:03.1543994Z TRACE:: StopSafely(): Waiting for '' thread to stop...
+2025-02-21T00:04:03.1549947Z TRACE:: DataMonitor.GenerateReport():
+DATA USAGE:: Total data requests 0
+DATA USAGE:: Succeeded data requests 0
+DATA USAGE:: Failed data requests 0
+DATA USAGE:: Failed data requests percentage 0%
+DATA USAGE:: Total universe data requests 0
+DATA USAGE:: Succeeded universe data requests 0
+DATA USAGE:: Failed universe data requests 0
+DATA USAGE:: Failed universe data requests percentage 0%
+2025-02-21T00:04:03.1572189Z TRACE:: Engine.Main(): Packet removed from queue: 1499254366
+2025-02-21T00:04:03.1573256Z TRACE:: LeanEngineSystemHandlers.Dispose(): start...
+2025-02-21T00:04:03.1580377Z TRACE:: LeanEngineSystemHandlers.Dispose(): Disposed of system handlers.
+2025-02-21T00:04:03.1581702Z TRACE:: LeanEngineAlgorithmHandlers.Dispose(): start...
+2025-02-21T00:04:03.1585465Z TRACE:: LeanEngineAlgorithmHandlers.Dispose(): Disposed of algorithm handlers.

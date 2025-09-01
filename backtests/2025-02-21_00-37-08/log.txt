@@ -1,0 +1,66 @@
+2025-02-21T05:37:09.4793583Z TRACE:: Engine.Main(): LEAN ALGORITHMIC TRADING ENGINE v2.5.0.0 Mode: DEBUG (64bit) Host: Anus-Air
+2025-02-21T05:37:09.4855047Z TRACE:: Engine.Main(): Started 5:37 AM
+2025-02-21T05:37:09.4884847Z TRACE:: Config.Get(): Configuration key not found. Key: lean-manager-type - Using default value: LocalLeanManager
+2025-02-21T05:37:09.4985109Z TRACE:: JobQueue.NextJob(): Selected /LeanCLI/main.py
+2025-02-21T05:37:09.5336009Z TRACE:: Config.GetValue(): scheduled-event-leaky-bucket-capacity - Using default value: 120
+2025-02-21T05:37:09.5349349Z TRACE:: Config.GetValue(): scheduled-event-leaky-bucket-time-interval-minutes - Using default value: 1440
+2025-02-21T05:37:09.5372586Z TRACE:: Config.GetValue(): scheduled-event-leaky-bucket-refill-amount - Using default value: 18
+2025-02-21T05:37:09.5391790Z TRACE:: Config.GetValue(): storage-limit - Using default value: 10737418240
+2025-02-21T05:37:09.5398955Z TRACE:: Config.GetValue(): storage-permissions - Using default value: 3
+2025-02-21T05:37:09.5419167Z TRACE:: Config.Get(): Configuration key not found. Key: optimization-id - Using default value: 
+2025-02-21T05:37:09.5423557Z TRACE:: Config.Get(): Configuration key not found. Key: backtest-name - Using default value: local
+2025-02-21T05:37:09.5477305Z TRACE:: Config.Get(): Configuration key not found. Key: data-channel - Using default value: 
+2025-02-21T05:37:09.5495839Z TRACE:: Config.Get(): Configuration key not found. Key: python-venv - Using default value: 
+2025-02-21T05:37:09.5499571Z TRACE:: Config.Get(): Configuration key not found. Key: out-of-sample-max-end-date - Using default value: 
+2025-02-21T05:37:09.5502260Z TRACE:: Config.GetValue(): out-of-sample-days - Using default value: 0
+2025-02-21T05:37:09.5519168Z TRACE:: Config.Get(): Configuration key not found. Key: data-permission-manager - Using default value: DataPermissionManager
+2025-02-21T05:37:09.5608667Z TRACE:: Config.GetValue(): zip-data-cache-provider - Using default value: 10
+2025-02-21T05:37:09.5620497Z TRACE:: Config.Get(): Configuration key not found. Key: fundamental-data-provider - Using default value: CoarseFundamentalDataProvider
+2025-02-21T05:37:09.5633570Z TRACE:: AlgorithmManager.CreateTokenBucket(): Initializing LeakyBucket: Capacity: 120 RefillAmount: 18 TimeInterval: 1440
+2025-02-21T05:37:09.5635657Z TRACE:: Config.GetValue(): algorithm-manager-time-loop-maximum - Using default value: 20
+2025-02-21T05:37:09.5687294Z TRACE:: Engine.Run(): Resource limits '0' CPUs. 2147483647 MB RAM.
+2025-02-21T05:37:09.5690659Z TRACE:: TextSubscriptionDataSourceReader.SetCacheSize(): Setting cache size to 71582788 items
+2025-02-21T05:37:09.5997295Z TRACE:: Config.GetValue(): downloader-data-update-period - Using default value: 7
+2025-02-21T05:37:09.9487587Z TRACE:: Config.GetValue(): algorithm-creation-timeout - Using default value: 90
+2025-02-21T05:37:09.9580655Z TRACE:: PythonInitializer.Initialize(): start...
+2025-02-21T05:37:10.3015956Z TRACE:: PythonInitializer.Initialize(): ended
+2025-02-21T05:37:10.3027307Z TRACE:: AlgorithmPythonWrapper(): Python version 3.11.9 | packaged by conda-forge | (main, Apr 19 2024, 18:26:34) [GCC 12.3.0]: Importing python module main
+2025-02-21T05:38:10.0794676Z TRACE:: Isolator.ExecuteWithTimeLimit(): Used: 23, Sample: 23, App: 292, CurrentTimeStepElapsed: 00:00.000. CPU: 1%
+2025-02-21T05:38:40.0958679Z TRACE:: Isolator.ExecuteWithTimeLimit(): Execution Security Error: Operation timed out - 1.5 minutes max. Check for recursive loops.
+2025-02-21T05:38:40.1040681Z ERROR:: Security.ExecuteWithTimeLimit(): Execution Security Error: Operation timed out - 1.5 minutes max. Check for recursive loops.
+2025-02-21T05:38:40.1258542Z ERROR:: Engine.Run():  System.TimeoutException: Execution Security Error: Operation timed out - 1.5 minutes max. Check for recursive loops.
+   at QuantConnect.Isolator.MonitorTask(Task task, TimeSpan timeSpan, Func`1 withinCustomLimits, Int64 memoryCap, Int32 sleepIntervalMillis) in Common/Isolator.cs:line 179
+   at QuantConnect.Isolator.ExecuteWithTimeLimit(TimeSpan timeSpan, Func`1 withinCustomLimits, Action codeBlock, Int64 memoryCap, Int32 sleepIntervalMillis, WorkerThread workerThread) in Common/Isolator.cs:line 69
+   at QuantConnect.Isolator.ExecuteWithTimeLimit(TimeSpan timeSpan, Action codeBlock, Int64 memoryCap, Int32 sleepIntervalMillis, WorkerThread workerThread) in Common/Isolator.cs:line 196
+   at QuantConnect.AlgorithmFactory.Loader.TryCreateAlgorithmInstanceWithIsolator(String assemblyPath, Int32 ramLimit, IAlgorithm& algorithmInstance, String& errorMessage) in AlgorithmFactory/Loader.cs:line 368
+   at QuantConnect.Lean.Engine.Setup.BacktestingSetupHandler.CreateAlgorithmInstance(AlgorithmNodePacket algorithmNodePacket, String assemblyPath) in Engine/Setup/BacktestingSetupHandler.cs:line 102
+   at QuantConnect.Lean.Engine.Engine.Run(AlgorithmNodePacket job, AlgorithmManager manager, String assemblyPath, WorkerThread workerThread) in Engine/Engine.cs:line 116
+2025-02-21T05:38:40.1267647Z TRACE:: JOB HANDLERS:
+         DataFeed:             QuantConnect.Lean.Engine.DataFeeds.FileSystemDataFeed
+         Setup:                QuantConnect.Lean.Engine.Setup.BacktestingSetupHandler
+         RealTime:             QuantConnect.Lean.Engine.RealTime.BacktestingRealTimeHandler
+         Results:              QuantConnect.Lean.Engine.Results.BacktestingResultHandler
+         Transactions:         QuantConnect.Lean.Engine.TransactionHandlers.BacktestingTransactionHandler
+         Object Store:         QuantConnect.Lean.Engine.Storage.LocalObjectStore
+         History Provider:     
+         Brokerage:            
+         Data Provider:        QuantConnect.Lean.Engine.DataFeeds.DefaultDataProvider
+
+2025-02-21T05:38:40.1272817Z TRACE:: BacktestingResultHandler.Exit(): starting...
+2025-02-21T05:38:40.1277761Z TRACE:: BacktestingResultHandler.Exit(): Saving logs...
+2025-02-21T05:38:40.1291697Z TRACE:: StopSafely(): Waiting for 'Result Thread' thread to stop...
+2025-02-21T05:38:40.1294542Z ERROR:: Algorithm.Initialize() Error: Execution Security Error: Operation timed out - 1.5 minutes max. Check for recursive loops. Stack Trace: Execution Security Error: Operation timed out - 1.5 minutes max. Check for recursive loops.
+ Execution Security Error: Operation timed out - 1.5 minutes max. Check for recursive loops.
+2025-02-21T05:38:40.1296224Z TRACE:: Debug: Your log was successfully created and can be retrieved from: /Results/1680466768-log.txt
+2025-02-21T05:38:40.1297174Z TRACE:: BacktestingResultHandler.Run(): Ending Thread...
+2025-02-21T05:38:40.1327250Z TRACE:: BacktestingResultHandler.CreateResultSummary(): 'Strategy Equity' chart not found
+2025-02-21T05:38:40.1580380Z TRACE:: 
+STATISTICS:: OrderListHash d41d8cd98f00b204e9800998ecf8427e
+2025-02-21T05:38:40.1580867Z TRACE:: BacktestingResultHandler.SendAnalysisResult(): Processed final packet
+2025-02-21T05:38:40.1583232Z TRACE:: Engine.Run(): Disposing of setup handler...
+2025-02-21T05:38:40.1584643Z TRACE:: Engine.Main(): Analysis Completed and Results Posted.
+2025-02-21T05:38:40.1590476Z TRACE:: Engine.Main(): Packet removed from queue: 1680466768
+2025-02-21T05:38:40.1591427Z TRACE:: LeanEngineSystemHandlers.Dispose(): start...
+2025-02-21T05:38:40.1594875Z TRACE:: LeanEngineSystemHandlers.Dispose(): Disposed of system handlers.
+2025-02-21T05:38:40.1595566Z TRACE:: LeanEngineAlgorithmHandlers.Dispose(): start...
+2025-02-21T05:38:40.1598450Z TRACE:: LeanEngineAlgorithmHandlers.Dispose(): Disposed of algorithm handlers.
