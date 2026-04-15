@@ -300,7 +300,7 @@ dev/
 development/
 
 # Test files
-test_*
+# test_*
 *_test.py
 *_test.js
 *_test.ts
