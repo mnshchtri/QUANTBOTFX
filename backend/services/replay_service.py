@@ -393,6 +393,88 @@ class ReplayService:
                 "message": f"Error controlling replay: {str(e)}",
                 "data": {}
             }
+
+    def play_replay(self) -> bool:
+        """Start replay"""
+        try:
+            self.control_replay("play")
+            return True
+        except Exception:
+            return False
+
+    def pause_replay(self) -> bool:
+        """Pause replay"""
+        try:
+            self.control_replay("pause")
+            return True
+        except Exception:
+            return False
+
+    def stop_replay(self) -> bool:
+        """Stop replay"""
+        try:
+            self.control_replay("stop")
+            return True
+        except Exception:
+            return False
+
+    def step_forward(self) -> bool:
+        """Step forward"""
+        try:
+            self.control_replay("step_forward")
+            return True
+        except Exception:
+            return False
+
+    def step_backward(self) -> bool:
+        """Step backward"""
+        try:
+            self.control_replay("step_backward")
+            return True
+        except Exception:
+            return False
+
+    def set_speed(self, speed: float) -> bool:
+        """Set replay speed"""
+        try:
+            self.replay_speed = speed
+            self.replay_engine.set_speed(speed)
+            return True
+        except Exception:
+            return False
+
+    def toggle_auto_trade(self) -> Dict[str, Any]:
+        """Toggle auto trading"""
+        try:
+            self.auto_trade_enabled = not self.auto_trade_enabled
+            self.replay_engine.auto_trade = self.auto_trade_enabled
+            return {
+                "success": True,
+                "auto_trade": self.auto_trade_enabled,
+                "message": f"Auto trade {'enabled' if self.auto_trade_enabled else 'disabled'}"
+            }
+        except Exception as e:
+            return {"success": False, "message": str(e), "auto_trade": self.auto_trade_enabled}
+
+    def toggle_risk_management(self) -> Dict[str, Any]:
+        """Toggle risk management"""
+        try:
+            self.replay_engine.toggle_risk_management()
+            return {
+                "success": True,
+                "risk_management": self.replay_engine.risk_management,
+                "message": f"Risk management {'enabled' if self.replay_engine.risk_management else 'disabled'}"
+            }
+        except Exception as e:
+            return {"success": False, "message": str(e), "risk_management": self.replay_engine.risk_management}
+
+    def simulate_strategy(self) -> bool:
+        """Simulate strategy"""
+        try:
+            self.replay_engine.simulate_strategy()
+            return True
+        except Exception:
+            return False
     
     def get_performance_metrics(self) -> Dict[str, Any]:
         """Get replay performance metrics"""

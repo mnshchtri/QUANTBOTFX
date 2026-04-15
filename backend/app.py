@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 
 # Import routers
-from routers import health, data, indicators, replay, strategies, workflows, backtrader
+from routers import health, data, indicators, replay, strategies, workflows, backtrader, replay_engine, trading
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -39,6 +39,8 @@ app.add_middleware(
 app.include_router(health.router, tags=["Health"])
 app.include_router(data.router, prefix="/api", tags=["Data"])
 app.include_router(indicators.router, prefix="/api", tags=["Indicators"])
+app.include_router(replay_engine.router, prefix="/api", tags=["Replay Engine"])
+app.include_router(trading.router, prefix="/api/trading", tags=["Trading"])
 app.include_router(replay.router, prefix="/replay", tags=["Replay"])
 app.include_router(strategies.router, prefix="/api/strategies", tags=["Strategies"])
 app.include_router(workflows.router, prefix="/api/workflows", tags=["Workflows"])
