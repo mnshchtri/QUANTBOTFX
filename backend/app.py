@@ -11,7 +11,17 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 
 # Import routers
-from routers import health, data, indicators, replay, strategies, workflows, backtrader, replay_engine, trading
+from routers import (
+    health,
+    data,
+    indicators,
+    replay,
+    strategies,
+    workflows,
+    backtrader,
+    replay_engine,
+    trading,
+)
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -23,7 +33,7 @@ app = FastAPI(
     description="Professional trading platform with AI-driven strategies",
     version="2.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
 # CORS middleware
@@ -46,17 +56,21 @@ app.include_router(strategies.router, prefix="/api/strategies", tags=["Strategie
 app.include_router(workflows.router, prefix="/api/workflows", tags=["Workflows"])
 app.include_router(backtrader.router, prefix="/api/backtrader", tags=["backtrader"])
 
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
     logger.info("🚀 QuantBotForex Backend starting up...")
     logger.info("✅ All services initialized successfully")
 
+
 @app.on_event("shutdown")
 async def shutdown_event():
     """Cleanup on shutdown"""
     logger.info("🛑 QuantBotForex Backend shutting down...")
 
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)

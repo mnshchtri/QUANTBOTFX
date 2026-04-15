@@ -4,6 +4,7 @@ from FirstHourLogic import FirstTwoHourBreakoutEvaluator
 from EmaManager import EmaManager
 from AISignalGenerator import AISignalGenerator
 
+
 class AIEnhancedGoldStrategy(QCAlgorithm):
     def Initialize(self):
         # Set start date and cash
@@ -16,24 +17,34 @@ class AIEnhancedGoldStrategy(QCAlgorithm):
 
         # Initialize AI Signal Generator
         self.ai_signal_generator = AISignalGenerator(self, self.gld)
-        
+
         # Create trend evaluators for different timeframes
-        self.daily_trend_evaluator = StochRSITrendEvaluator(self, self.gld, resolution=Resolution.Daily)
-        self.four_hour_trend_evaluator = StochRSITrendEvaluator(self, self.gld, resolution=Resolution.Hour)
-        self.one_hour_trend_evaluator = StochRSITrendEvaluator(self, self.gld, resolution=Resolution.Hour)
-        self.fifteen_minute_trend_evaluator = StochRSITrendEvaluator(self, self.gld, resolution=Resolution.Minute)
-        self.five_minute_cross = StochRSITrendEvaluator(self, self.gld, resolution=Resolution.Minute)
-        
+        self.daily_trend_evaluator = StochRSITrendEvaluator(
+            self, self.gld, resolution=Resolution.Daily
+        )
+        self.four_hour_trend_evaluator = StochRSITrendEvaluator(
+            self, self.gld, resolution=Resolution.Hour
+        )
+        self.one_hour_trend_evaluator = StochRSITrendEvaluator(
+            self, self.gld, resolution=Resolution.Hour
+        )
+        self.fifteen_minute_trend_evaluator = StochRSITrendEvaluator(
+            self, self.gld, resolution=Resolution.Minute
+        )
+        self.five_minute_cross = StochRSITrendEvaluator(
+            self, self.gld, resolution=Resolution.Minute
+        )
+
         # Store trend values
         self.four_hour_trend = None
-        self.one_hour_trend = None 
+        self.one_hour_trend = None
         self.fifteen_minute_trend = None
         self.daily_breakout_evaluator_confirmation = None
-        
+
         # AI signal storage
         self.ai_signal = "NEUTRAL"
         self.ai_confidence = 0.5
-        
+
         # Initialize consolidators
         self.create_consolidators()
 
@@ -42,19 +53,19 @@ class AIEnhancedGoldStrategy(QCAlgorithm):
 
         # Initialize trade counter
         self.trade_count = 0
-        
+
         # Schedule to reset trade count daily
         self.Schedule.On(
             self.DateRules.EveryDay(self.gld),
             self.TimeRules.At(18, 0, TimeZones.NewYork),
-            self.reset_trade_count
+            self.reset_trade_count,
         )
 
         # Schedule daily evaluation
         self.Schedule.On(
             self.DateRules.EveryDay(self.gld),
             self.TimeRules.At(1, 0),
-            self.evaluate_daily_trend
+            self.evaluate_daily_trend,
         )
 
         # Create breakout evaluator
@@ -62,7 +73,7 @@ class AIEnhancedGoldStrategy(QCAlgorithm):
 
         # Define stop loss and take profit
         self.stop_loss_pips = 2.50
-        
+
         # AI confidence thresholds
         self.min_ai_confidence = 0.7  # Minimum confidence for AI signal
         self.ai_weight = 0.3  # Weight given to AI signal vs technical signals
@@ -72,11 +83,16 @@ class AIEnhancedGoldStrategy(QCAlgorithm):
             bar = data.Bars[self.gld]
             # Update AI signal generator
             self.ai_signal_generator.update(bar.EndTime, bar.Close, bar.Volume)
-            
+
             # Generate AI signal
-            self.ai_signal, self.ai_confidence = self.ai_signal_generator.generate_signal(bar.Close, bar.Volume)
-            
-            self.Debug(f"AI Signal: {self.ai_signal}, Confidence: {self.ai_confidence:.3f}")
+            (
+                self.ai_signal,
+                self.ai_confidence,
+            ) = self.ai_signal_generator.generate_signal(bar.Close, bar.Volume)
+
+            self.Debug(
+                f"AI Signal: {self.ai_signal}, Confidence: {self.ai_confidence:.3f}"
+            )
 
     def on_fifteen_minute_data(self, sender, bar):
         self.fifteen_minute_trend_evaluator.update(bar.EndTime, bar.Close)
@@ -87,7 +103,9 @@ class AIEnhancedGoldStrategy(QCAlgorithm):
         self.Debug(f"Daily Trend: {self.daily_trend_evaluator.evaluate()}")
 
     def on_one_hour_data(self, sender, bar):
-        self.daily_breakout_evaluator_confirmation = self.daily_breakout_evaluator.update_hourly_data(bar)
+        self.daily_breakout_evaluator_confirmation = (
+            self.daily_breakout_evaluator.update_hourly_data(bar)
+        )
         self.Debug(f"Daily Breakout: {self.daily_breakout_evaluator_confirmation}")
         self.one_hour_trend_evaluator.update(bar.EndTime, bar.Close)
         self.one_hour_trend = self.one_hour_trend_evaluator.evaluate()
@@ -109,8 +127,11 @@ class AIEnhancedGoldStrategy(QCAlgorithm):
                 and self.one_hour_trend in ["Bullish", "Bullish Continuation"]
             ):
                 # Check AI confirmation
-                ai_bullish = (self.ai_signal == "BUY" and self.ai_confidence >= self.min_ai_confidence)
-                
+                ai_bullish = (
+                    self.ai_signal == "BUY"
+                    and self.ai_confidence >= self.min_ai_confidence
+                )
+
                 if ai_bullish:
                     setup = "Bull Setup A (AI Enhanced)"
                 else:
@@ -123,8 +144,11 @@ class AIEnhancedGoldStrategy(QCAlgorithm):
                 and self.one_hour_trend in ["Bearish", "Bearish Continuation"]
             ):
                 # Check AI confirmation
-                ai_bearish = (self.ai_signal == "SELL" and self.ai_confidence >= self.min_ai_confidence)
-                
+                ai_bearish = (
+                    self.ai_signal == "SELL"
+                    and self.ai_confidence >= self.min_ai_confidence
+                )
+
                 if ai_bearish:
                     setup = "Bear Setup A (AI Enhanced)"
                 else:
@@ -134,7 +158,9 @@ class AIEnhancedGoldStrategy(QCAlgorithm):
             order_type = "buy" if "Bull" in setup else "sell"
             # Adjust position size based on AI confidence
             position_multiplier = 1.5 if "AI Enhanced" in setup else 1.0
-            self.execute_trade(order_type, bar.Close, setup, bar.EndTime, position_multiplier)
+            self.execute_trade(
+                order_type, bar.Close, setup, bar.EndTime, position_multiplier
+            )
 
     def on_four_hour_data(self, sender, bar):
         self.four_hour_trend_evaluator.update(bar.EndTime, bar.Close)
@@ -154,12 +180,16 @@ class AIEnhancedGoldStrategy(QCAlgorithm):
 
         # 15-minute consolidator
         self.fifteen_minute_consolidator = TradeBarConsolidator(timedelta(minutes=15))
-        self.SubscriptionManager.AddConsolidator(self.gld, self.fifteen_minute_consolidator)
+        self.SubscriptionManager.AddConsolidator(
+            self.gld, self.fifteen_minute_consolidator
+        )
         self.fifteen_minute_consolidator.DataConsolidated += self.on_fifteen_minute_data
-        
+
         # 5-minute consolidator
         self.five_minute_consolidator = TradeBarConsolidator(timedelta(minutes=5))
-        self.SubscriptionManager.AddConsolidator(self.gld, self.five_minute_consolidator)
+        self.SubscriptionManager.AddConsolidator(
+            self.gld, self.five_minute_consolidator
+        )
         self.five_minute_consolidator.DataConsolidated += self.on_five_minute_data
 
     def execute_trade(self, order_type, price, setup, time, position_multiplier=1.0):
@@ -170,7 +200,9 @@ class AIEnhancedGoldStrategy(QCAlgorithm):
         if order_type == "buy":
             # Market Order
             self.MarketOrder(self.gld, quantity)
-            self.Debug(f"{setup} - Market BUY executed at {price} on {time}, Quantity: {quantity}, AI Confidence: {self.ai_confidence:.3f}")
+            self.Debug(
+                f"{setup} - Market BUY executed at {price} on {time}, Quantity: {quantity}, AI Confidence: {self.ai_confidence:.3f}"
+            )
 
             # Stop Loss & Take Profit Logic
             stop_loss_price = price - self.stop_loss_pips
@@ -183,7 +215,9 @@ class AIEnhancedGoldStrategy(QCAlgorithm):
         elif order_type == "sell":
             # Market Order
             self.MarketOrder(self.gld, -quantity)
-            self.Debug(f"{setup} - Market SELL executed at {price} on {time}, Quantity: {quantity}, AI Confidence: {self.ai_confidence:.3f}")
+            self.Debug(
+                f"{setup} - Market SELL executed at {price} on {time}, Quantity: {quantity}, AI Confidence: {self.ai_confidence:.3f}"
+            )
 
             # Stop Loss & Take Profit Logic
             stop_loss_price = price + self.stop_loss_pips
@@ -196,4 +230,4 @@ class AIEnhancedGoldStrategy(QCAlgorithm):
         self.trade_count += 1
 
     def reset_trade_count(self):
-        self.trade_count = 0 
+        self.trade_count = 0

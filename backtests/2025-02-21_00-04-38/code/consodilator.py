@@ -1,7 +1,7 @@
 # region imports
-#from AlgorithmImports import *
-#from datetime import timedelta
-'''class Create_Consolidators():
+# from AlgorithmImports import *
+# from datetime import timedelta
+"""class Create_Consolidators():
     def  __init__(self,algorithm,gld):
         self.algorithm = algorithm
         self.gld =gld
@@ -26,5 +26,4 @@
         self.SubscriptionManager.AddConsolidator(self.gld, self.five_minute_consodilator)
         self.five_minute_consodilator.DataConsolidated += self.on_five_min_data
 
-# Your New Python File '''
-
+# Your New Python File """

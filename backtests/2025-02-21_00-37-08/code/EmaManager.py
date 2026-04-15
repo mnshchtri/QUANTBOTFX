@@ -1,7 +1,10 @@
 from AlgorithmImports import *
 
+
 class EmaManager:
-    def __init__(self, algorithm, symbol, period = 50,smoothing_factor = 0.5,resolution = None):
+    def __init__(
+        self, algorithm, symbol, period=50, smoothing_factor=0.5, resolution=None
+    ):
         """
         Initializes the EMA Manager.
 
