@@ -81,7 +81,7 @@ start_backend() {
     source ../.venv/bin/activate
     
     print_status "Starting FastAPI backend on port 8000..."
-    python app.py &
+    python3 app.py &
     BACKEND_PID=$!
     
     cd ..

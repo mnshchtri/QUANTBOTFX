@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ChartBarSquareIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon } from '@heroicons/react/24/solid';
 
 interface MarketInfoProps {
   symbol: string;
@@ -22,117 +23,95 @@ const MarketInfo: React.FC<MarketInfoProps> = ({ symbol, timeframe }) => {
 
   useEffect(() => {
     const fetchMarketInfo = async () => {
+      setLoading(true);
       try {
         const response = await fetch(`/api/market-info?symbol=${symbol}`);
         if (response.ok) {
           const data = await response.json();
           setMarketData({
             symbol: data.symbol,
-            current_price: data.price,
+            current_price: data.current_price,
             change: data.change,
-            change_percent: data.changePercent,
+            change_percent: data.change_percent,
             high: data.high,
             low: data.low,
             volume: data.volume,
             spread: data.spread,
           });
-        } else {
-          // Remove fallback to mock data - fail properly if API is not available
-          setMarketData(null);
         }
       } catch (error) {
         console.error('Error fetching market info:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchMarketInfo();
+    const interval = setInterval(fetchMarketInfo, 10000);
+    return () => clearInterval(interval);
   }, [symbol]);
 
-  if (loading) {
+  if (loading && !marketData) {
     return (
-      <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-          <div className="h-6 bg-gray-200 rounded w-1/2 mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+      <div className="glass rounded-2xl p-6 h-[200px] animate-pulse flex flex-col gap-4">
+        <div className="h-4 bg-white/5 rounded w-1/3" />
+        <div className="h-10 bg-white/5 rounded w-full" />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="h-8 bg-white/5 rounded" />
+          <div className="h-8 bg-white/5 rounded" />
         </div>
       </div>
     );
   }
 
-  if (!marketData) {
-    return (
-      <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
-        <p className="text-gray-500">No market data available</p>
-      </div>
-    );
-  }
+  if (!marketData) return null;
 
   const isPositive = marketData.change >= 0;
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-semibold text-gray-800">{marketData.symbol}</h3>
-        <span className="text-sm text-gray-600">{timeframe}</span>
+    <div className="glass rounded-2xl p-5 border border-[var(--border-subtle)] relative overflow-hidden group">
+      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+        <ChartBarSquareIcon className="w-16 h-16 text-white" />
       </div>
 
-      <div className="space-y-3">
-        {/* Current Price */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600">Current Price:</span>
-          <span className="text-xl font-bold text-gray-900">
-            {marketData.current_price.toFixed(4)}
+      <div className="flex items-center gap-2 mb-4">
+        <div className={`w-2 h-2 rounded-full ${isPositive ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'}`} />
+        <span className="panel-header mb-0">Market Highlights</span>
+      </div>
+
+      <div className="mb-6">
+        <div className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Live Price</div>
+        <div className="flex items-baseline gap-3">
+          <span className="text-3xl font-bold data-value tracking-tighter text-[var(--text-main)]">
+            {marketData.current_price.toFixed(5)}
           </span>
-        </div>
-
-        {/* Change */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600">Change:</span>
-          <div className="flex items-center space-x-2">
-            <span className={`text-sm font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositive ? '+' : ''}{marketData.change.toFixed(4)}
-            </span>
-            <span className={`text-xs px-2 py-1 rounded ${isPositive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-              {isPositive ? '+' : ''}{marketData.change_percent.toFixed(2)}%
-            </span>
+          <div className={`flex items-center gap-1 text-sm font-bold ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+            {isPositive ? <ArrowTrendingUpIcon className="w-4 h-4" /> : <ArrowTrendingDownIcon className="w-4 h-4" />}
+            <span>{isPositive ? '+' : ''}{marketData.change_percent.toFixed(2)}%</span>
           </div>
         </div>
+      </div>
 
-        {/* High/Low */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <span className="text-sm text-gray-600">High:</span>
-            <div className="text-sm font-medium text-green-600">
-              {marketData.high.toFixed(4)}
-            </div>
-          </div>
-          <div>
-            <span className="text-sm text-gray-600">Low:</span>
-            <div className="text-sm font-medium text-red-600">
-              {marketData.low.toFixed(4)}
-            </div>
-          </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-[#ffffff03] rounded-xl p-3 border border-[var(--border-subtle)]">
+          <div className="text-[9px] text-[var(--text-muted)] font-bold uppercase mb-1">24h High</div>
+          <div className="text-sm font-bold data-value text-green-400">{marketData.high.toFixed(5)}</div>
         </div>
-
-        {/* Volume & Spread */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <span className="text-sm text-gray-600">Volume:</span>
-            <div className="text-sm font-medium text-gray-900">
-              {marketData.volume.toLocaleString()}
-            </div>
-          </div>
-          <div>
-            <span className="text-sm text-gray-600">Spread:</span>
-            <div className="text-sm font-medium text-gray-900">
-              {marketData.spread.toFixed(4)}
-            </div>
-          </div>
+        <div className="bg-[#ffffff03] rounded-xl p-3 border border-[var(--border-subtle)]">
+          <div className="text-[9px] text-[var(--text-muted)] font-bold uppercase mb-1">24h Low</div>
+          <div className="text-sm font-bold data-value text-red-400">{marketData.low.toFixed(5)}</div>
+        </div>
+        <div className="bg-[#ffffff03] rounded-xl p-3 border border-[var(--border-subtle)]">
+          <div className="text-[9px] text-[var(--text-muted)] font-bold uppercase mb-1">Spread</div>
+          <div className="text-sm font-bold data-value text-blue-400">{(marketData.spread * 10).toFixed(1)} <span className="text-[8px] text-[var(--text-muted)]">PIPS</span></div>
+        </div>
+        <div className="bg-[#ffffff03] rounded-xl p-3 border border-[var(--border-subtle)]">
+          <div className="text-[9px] text-[var(--text-muted)] font-bold uppercase mb-1">Volume</div>
+          <div className="text-sm font-bold data-value text-[var(--text-main)]">{(marketData.volume / 1000).toFixed(1)}K</div>
         </div>
       </div>
     </div>
   );
 };
 
-export default MarketInfo; 
+export default MarketInfo;

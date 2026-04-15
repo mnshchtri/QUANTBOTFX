@@ -174,7 +174,7 @@ const TradingDashboardChart: React.FC<TradingDashboardChartProps> = ({
         close: displayData.map(d => d.close),
         type: 'candlestick',
         name: `${symbol} (${timeframe})`,
-        increasing: { line: { color: '#10b981' }, fillcolor: '#10b981' },
+        increasing: { line: { color: '#22c55e' }, fillcolor: '#22c55e' },
         decreasing: { line: { color: '#ef4444' }, fillcolor: '#ef4444' },
         yaxis: 'y',
         customdata: displayData.map(d => d.timestamp), // Keep timestamps for hover
@@ -248,36 +248,40 @@ const TradingDashboardChart: React.FC<TradingDashboardChartProps> = ({
     const padding = priceRange * 0.1; // 10% padding
     
     const baseLayout: any = {
-      title: `${symbol} Live Chart (${timeframe})`,
-                xaxis: {
-            title: 'Candles',
-            showgrid: true,
-            gridcolor: '#f3f4f6',
-            type: 'linear',
-            rangeslider: { visible: false },
-            tickmode: 'auto',
-            nticks: 10
-          },
-      yaxis: {
-        title: 'Price',
-        side: 'left',
+      xaxis: {
         showgrid: true,
-        gridcolor: '#f3f4f6',
+        gridcolor: '#212631',
+        tickfont: { color: '#8b949e', size: 10 },
+        type: 'linear',
+        rangeslider: { visible: false },
+        zeroline: false,
+        tickmode: 'array',
+        tickvals: displayData
+          .filter((_, i) => i % Math.max(1, Math.floor(displayData.length / 8)) === 0)
+          .map((_, i) => i * Math.max(1, Math.floor(displayData.length / 8))),
+        ticktext: displayData
+          .filter((_, i) => i % Math.max(1, Math.floor(displayData.length / 8)) === 0)
+          .map(d => {
+            const date = new Date(d.timestamp * 1000);
+            return timeframe.includes('M') || timeframe.includes('H') 
+              ? `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
+              : `${date.getMonth() + 1}/${date.getDate()}`;
+          })
+      },
+      yaxis: {
+        side: 'right',
+        showgrid: true,
+        gridcolor: '#212631',
+        tickfont: { color: '#8b949e', size: 10 },
         range: [minPrice - padding, maxPrice + padding],
-        tickformat: '.4f',
+        tickformat: '.5f',
         zeroline: false
       },
-      plot_bgcolor: '#ffffff',
-      paper_bgcolor: '#ffffff',
-      font: { color: '#374151' },
-      legend: {
-        x: 0.02,
-        y: 0.98,
-        bgcolor: 'rgba(255,255,255,0.8)',
-        bordercolor: '#d1d5db',
-        borderwidth: 1
-      },
-      margin: { l: 60, r: 60, t: 60, b: 60 },
+      plot_bgcolor: 'transparent',
+      paper_bgcolor: 'transparent',
+      font: { family: 'Inter, sans-serif' },
+      showlegend: false,
+      margin: { l: 10, r: 50, t: 30, b: 30 },
       height: 700
     };
 
@@ -305,88 +309,39 @@ const TradingDashboardChart: React.FC<TradingDashboardChartProps> = ({
 
   if (loading) {
     return (
-      <div className="bg-white p-8 rounded-lg shadow-md border border-gray-200">
-        <div className="text-center">
-          <div className="text-blue-500 text-lg mb-2">Loading real data...</div>
-          <div className="text-gray-400 text-sm">Fetching from OANDA API</div>
-        </div>
+      <div className="flex flex-col items-center justify-center h-full bg-transparent">
+        <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4" />
+        <div className="text-[var(--text-muted)] text-xs font-bold uppercase tracking-widest">Synchronizing Market Data...</div>
       </div>
     );
   }
 
   if (!Plot) {
     return (
-      <div className="flex items-center justify-center h-96 bg-gray-900 rounded-lg">
-        <div className="text-white text-lg">Loading chart component...</div>
+      <div className="flex items-center justify-center h-full bg-transparent">
+        <div className="text-[var(--text-muted)] text-sm">Initializing Graphics Engine...</div>
       </div>
     );
   }
 
   if (!displayData || displayData.length === 0) {
     return (
-      <div className="bg-white p-8 rounded-lg shadow-md border border-gray-200">
-        <div className="text-center">
-          <div className="text-gray-500 text-lg mb-2">No data available</div>
-          <div className="text-gray-400 text-sm">Unable to load chart data</div>
-        </div>
+      <div className="flex flex-col items-center justify-center h-full bg-transparent border border-dashed border-[var(--border-subtle)] rounded-xl">
+        <div className="text-[var(--text-muted)] text-sm font-bold uppercase tracking-widest mb-2">No Market Data</div>
+        <div className="text-[var(--text-muted)] text-xs opacity-50">Select another instrument or timeframe</div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
-      {/* Data Source Info */}
-      <div className="mb-4 flex items-center justify-between">
-        <div className="text-sm text-gray-600">
-          Data Source: <span className="font-medium">{dataSource}</span>
-        </div>
-        <div className="text-sm text-gray-600">
-          Displaying {displayData.length} candles
-        </div>
-      </div>
-
-      {/* Chart */}
+    <div className="absolute inset-0">
       <Plot
         data={allData}
-        layout={layout}
+        layout={{...layout, height: undefined, autosize: true}}
         config={config}
-        style={{ width: '100%', height: '700px' }}
+        style={{ width: '100%', height: '100%' }}
         useResizeHandler={true}
       />
-
-      {/* Chart Legend */}
-      <div className="mt-6 flex items-center justify-center space-x-6 text-sm">
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 bg-green-500 rounded"></div>
-          <span>Bullish Candles</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 bg-red-500 rounded"></div>
-          <span>Bearish Candles</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 bg-blue-500 rounded"></div>
-          <span>Volume</span>
-        </div>
-        {overlayIndicators.map(indicator => (
-          <div key={indicator.name} className="flex items-center space-x-2">
-            <div className="w-4 h-4 rounded" style={{ backgroundColor: indicator.color }}></div>
-            <span>{indicator.name} (Overlay)</span>
-          </div>
-        ))}
-        {nonOverlayIndicators.map(indicator => (
-          <div key={indicator.name} className="flex items-center space-x-2">
-            <div className="w-4 h-4 rounded" style={{ backgroundColor: indicator.color }}></div>
-            <span>{indicator.name} (Subplot)</span>
-          </div>
-        ))}
-        {showLevels && levels.length > 0 && (
-          <div className="flex items-center space-x-2">
-            <div className="w-4 h-1 bg-blue-500"></div>
-            <span>Levels ({levels.length})</span>
-          </div>
-        )}
-      </div>
     </div>
   );
 };
