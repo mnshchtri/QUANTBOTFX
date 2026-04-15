@@ -10,19 +10,24 @@ router = APIRouter()
 
 from pydantic import BaseModel
 
+
 class ReplayInitializeRequest(BaseModel):
     instrument: str = "GBP_JPY"
     timeframe: str = "M15"
+
 
 @router.post("/initialize")
 async def initialize_replay(request: ReplayInitializeRequest):
     """Initialize replay session"""
     try:
         replay_service = get_replay_service()
-        result = await replay_service.initialize_replay(request.instrument, request.timeframe)
+        result = await replay_service.initialize_replay(
+            request.instrument, request.timeframe
+        )
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/status")
 async def get_replay_status():
@@ -34,6 +39,7 @@ async def get_replay_status():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/data")
 async def get_replay_data():
     """Get current replay data with signals"""
@@ -43,6 +49,7 @@ async def get_replay_data():
         return data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/control")
 async def control_replay(request: ReplayControlRequest):
@@ -54,6 +61,7 @@ async def control_replay(request: ReplayControlRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.post("/set-start-position")
 async def set_start_position(request: ReplayPositionRequest):
     """Set replay start position"""
@@ -62,11 +70,12 @@ async def set_start_position(request: ReplayPositionRequest):
         result = replay_service.set_start_position(
             date=request.date if request.date else None,
             position=request.position if request.position else None,
-            context_candles=request.context_candles or 50
+            context_candles=request.context_candles or 50,
         )
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/performance")
 async def get_replay_performance():
@@ -78,6 +87,7 @@ async def get_replay_performance():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.post("/add-indicator")
 async def add_indicator(request: dict):
     """Add indicator to replay"""
@@ -87,6 +97,7 @@ async def add_indicator(request: dict):
         return {"success": True, "message": "Indicator added successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/remove-indicator")
 async def remove_indicator(request: dict):
@@ -98,6 +109,7 @@ async def remove_indicator(request: dict):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.post("/execute-trade")
 async def execute_trade(request: dict):
     """Execute trade in replay"""
@@ -107,6 +119,7 @@ async def execute_trade(request: dict):
         return {"success": True, "message": "Trade executed successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/add-strategy-signals")
 async def add_strategy_signals(request: dict):
@@ -119,6 +132,7 @@ async def add_strategy_signals(request: dict):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/strategy-signals")
 async def get_strategy_signals_from_replay():
     """Get all strategy signal overlays from backtest results"""
@@ -129,4 +143,4 @@ async def get_strategy_signals_from_replay():
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) 
+        raise HTTPException(status_code=500, detail=str(e))
