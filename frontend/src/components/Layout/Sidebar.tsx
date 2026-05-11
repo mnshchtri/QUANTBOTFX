@@ -143,36 +143,25 @@ const Sidebar: React.FC<SidebarProps> = ({
               </button>
             </div>
 
-            <div className="flex bg-white border border-slate-200 p-1 rounded-xl shadow-sm">
+            <div className="flex bg-slate-100/50 p-1 rounded-xl">
               <button 
                 onClick={() => setLeftPanelOpen(!leftPanelOpen)}
-                className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
-                  leftPanelOpen ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
+                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                  leftPanelOpen ? 'bg-white text-blue-600 shadow-sm border border-slate-200' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
                 }`}
               >
-                <Layout className="w-3 h-3" />
+                <Layout className="w-3.5 h-3.5" />
                 Left
               </button>
               <button 
                 onClick={() => setRightPanelOpen(!rightPanelOpen)}
-                className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
-                  rightPanelOpen ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
+                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                  rightPanelOpen ? 'bg-white text-blue-600 shadow-sm border border-slate-200' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
                 }`}
               >
-                <Layout className="w-3 h-3" />
+                <Layout className="w-3.5 h-3.5" />
                 Right
               </button>
-            </div>
-
-            <div className="space-y-2 pt-4 border-t border-slate-200">
-              <div className="flex justify-between items-center">
-                <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Node</span>
-                <span className="text-[10px] text-slate-800 font-mono font-bold px-2 py-0.5 bg-white border border-slate-200 rounded-md shadow-sm">NY-04.STABLE</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Latency</span>
-                <span className="text-[11px] text-emerald-600 font-mono font-bold">1.2ms</span>
-              </div>
             </div>
           </div>
         )}
