@@ -91,7 +91,12 @@ function App() {
     }
   }, [symbol, timeframe]);
 
-  useEffect(() => { loadMarketData(); }, [loadMarketData]);
+  // Initial load and polling
+  useEffect(() => {
+    loadMarketData();
+    const interval = setInterval(loadMarketData, 5000); // Poll every 5s
+    return () => clearInterval(interval);
+  }, [loadMarketData]);
 
   const executeTrade = async (type: 'buy' | 'sell') => {
     try {
@@ -109,101 +114,89 @@ function App() {
   };
 
   const renderTradingView = () => (
-    <div className="flex flex-1 overflow-hidden relative h-full bg-[#020408]">
+    <div className="flex flex-1 overflow-hidden relative h-full bg-[#f8fafc]">
       {/* Background Ambient Glows */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[120px] rounded-full animate-pulse-slow" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-indigo-600/10 blur-[120px] rounded-full animate-pulse-slow" />
       </div>
 
-      {/* LEFT PANEL */}
-      <AnimatePresence>
-        {leftPanelOpen && (
-          <motion.div 
-            initial={{ x: -300, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -300, opacity: 0 }}
-            className="absolute left-6 top-6 bottom-6 w-80 z-40"
-          >
-            <div className="h-full premium-card flex flex-col overflow-hidden">
-              <div className="flex-1 overflow-y-auto custom-scrollbar space-y-8">
-                <Watchlist currentSymbol={symbol} onSelectSymbol={setSymbol} symbols={symbols} />
-                <div className="border-t border-white/5 pt-8">
-                  <IndicatorPanel onIndicatorToggle={() => {}} activeIndicators={activeIndicators} />
+      <div className="flex flex-1 overflow-hidden p-6 gap-6 relative z-10">
+        {/* LEFT PANEL */}
+        <AnimatePresence>
+          {leftPanelOpen && (
+            <motion.div 
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              className="w-[380px] h-full shrink-0"
+            >
+              <div className="h-full premium-card flex flex-col overflow-hidden bg-white border-slate-100 shadow-sm">
+                <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+                  <Watchlist currentSymbol={symbol} onSelectSymbol={setSymbol} symbols={symbols} />
                 </div>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* CENTER - CHART */}
-      <div className="flex-1 relative">
-        <TradingDashboardChart
-          data={chartData}
-          indicators={indicators}
-          timeframe={timeframe}
-          symbol={symbol}
-          showLevels={true}
-        />
-      </div>
+        {/* CENTER - CHART */}
+        <div className="flex-1 h-full min-w-0">
+          <div className="h-full premium-card overflow-hidden bg-white border-slate-100 shadow-sm flex flex-col">
+            <TradingDashboardChart 
+              symbol={symbol} 
+              timeframe={timeframe} 
+              data={chartData} 
+              indicators={indicators} 
+              showLevels={true}
+            />
+          </div>
+        </div>
 
-      {/* RIGHT PANEL */}
-      <AnimatePresence>
-        {rightPanelOpen && (
-          <motion.div 
-            initial={{ x: 300, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 300, opacity: 0 }}
-            className="absolute right-6 top-6 bottom-6 w-80 z-40"
-          >
-            <div className="h-full premium-card flex flex-col overflow-hidden">
-              <div className="flex-1 overflow-y-auto custom-scrollbar space-y-8">
-                <TradingLevelsPanel symbol={symbol} timeframe={timeframe} />
-                <NewsPanel symbol={symbol} />
+        {/* RIGHT PANEL */}
+        <AnimatePresence>
+          {rightPanelOpen && (
+            <motion.div 
+              initial={{ x: 20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              className="w-[380px] h-full shrink-0"
+            >
+              <div className="h-full premium-card flex flex-col overflow-hidden bg-white border-slate-100 shadow-sm">
+                <div className="flex-1 overflow-y-auto custom-scrollbar space-y-8">
+                  <TradingLevelsPanel symbol={symbol} timeframe={timeframe} />
+                  <NewsPanel symbol={symbol} />
+                </div>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* BOTTOM HUD */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4">
         <motion.div 
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="glass rounded-[32px] h-20 flex items-center px-8 gap-8 border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-3xl min-w-[700px]"
+          className="bg-white/90 border border-slate-100 rounded-[32px] h-20 flex items-center px-8 gap-8 shadow-xl shadow-slate-200/50 backdrop-blur-3xl min-w-[650px]"
         >
-          <div className="flex items-center gap-4">
-            <button onClick={() => setLeftPanelOpen(!leftPanelOpen)} className={`p-2.5 rounded-xl transition-all ${leftPanelOpen ? 'bg-blue-500/20 text-blue-400' : 'text-gray-500 hover:text-white'}`}>
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button onClick={() => setRightPanelOpen(!rightPanelOpen)} className={`p-2.5 rounded-xl transition-all ${rightPanelOpen ? 'bg-blue-500/20 text-blue-400' : 'text-gray-500 hover:text-white'}`}>
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-          
-          <div className="h-10 w-[1px] bg-white/5" />
-          
           <div className="flex gap-4">
-            <button onClick={() => executeTrade('buy')} className="btn-trading-primary px-8">Buy Long</button>
-            <button onClick={() => executeTrade('sell')} className="btn-trading px-8 bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20">Sell Short</button>
+            <button onClick={() => executeTrade('buy')} className="px-8 py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-[0.2em] bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-600/20 transition-all">Buy Long</button>
+            <button onClick={() => executeTrade('sell')} className="px-8 py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-[0.2em] bg-red-600/10 border border-red-600/20 text-red-500 hover:bg-red-600/20 transition-all">Sell Short</button>
           </div>
           
           <div className="h-10 w-[1px] bg-white/5" />
           
-          <div className="flex gap-6">
+          <div className="flex gap-10">
             <div className="flex flex-col">
-              <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Lot</span>
+              <span className="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em]">Lot</span>
               <span className="text-sm font-bold font-mono text-white">0.10</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Margin</span>
+              <span className="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em]">Margin</span>
               <span className="text-sm font-bold font-mono text-blue-400">1:500</span>
             </div>
           </div>
 
-          <button onClick={() => setBottomPanelOpen(!bottomPanelOpen)} className="ml-auto p-3 bg-white/5 rounded-2xl text-gray-400 hover:text-white transition-colors">
+          <button onClick={() => setBottomPanelOpen(!bottomPanelOpen)} className="ml-auto p-3 bg-white/5 border border-white/5 rounded-2xl text-slate-400 hover:text-blue-400 transition-all">
             <Terminal className="w-5 h-5" />
           </button>
         </motion.div>
@@ -216,10 +209,18 @@ function App() {
   }
 
   return (
-    <div className="flex bg-[#020408] h-screen overflow-hidden text-white">
-      <Sidebar activeView={activeView} setActiveView={setActiveView} />
+    <div className="flex bg-[#f8fafc] h-screen overflow-hidden text-slate-900">
+      <Sidebar 
+        activeView={activeView} 
+        setActiveView={setActiveView}
+        onLogout={handleLogout}
+        leftPanelOpen={leftPanelOpen}
+        setLeftPanelOpen={setLeftPanelOpen}
+        rightPanelOpen={rightPanelOpen}
+        setRightPanelOpen={setRightPanelOpen}
+      />
       
-      <main className="flex-1 ml-[var(--sidebar-width)] flex flex-col h-screen overflow-hidden">
+      <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
         <Header 
           symbol={symbol} setSymbol={setSymbol} 
           timeframe={timeframe} setTimeframe={setTimeframe}

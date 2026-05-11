@@ -112,8 +112,8 @@ const TradingDashboardChart: React.FC<TradingDashboardChartProps> = ({
         close: displayData.map(d => d.close),
         type: 'candlestick',
         name: `${symbol} (${timeframe})`,
-        increasing: { line: { color: '#22c55e' }, fillcolor: '#22c55e' },
-        decreasing: { line: { color: '#ef4444' }, fillcolor: '#ef4444' },
+        increasing: { line: { color: '#10b981' }, fillcolor: '#10b981' },
+        decreasing: { line: { color: '#f43f5e' }, fillcolor: '#f43f5e' },
         yaxis: 'y',
         customdata: displayData.map(d => d.timestamp), // Keep timestamps for hover
         hovertemplate: '<b>%{customdata|%Y-%m-%d %H:%M}</b><br>Open: %{open}<br>High: %{high}<br>Low: %{low}<br>Close: %{close}<extra></extra>'
@@ -210,8 +210,8 @@ const TradingDashboardChart: React.FC<TradingDashboardChartProps> = ({
     const baseLayout: any = {
       xaxis: {
         showgrid: true,
-        gridcolor: '#212631',
-        tickfont: { color: '#8b949e', size: 10 },
+        gridcolor: '#f1f5f9',
+        tickfont: { size: 10, color: '#64748b', family: 'Inter' },
         type: 'linear',
         rangeslider: { visible: false },
         zeroline: false,
@@ -229,13 +229,15 @@ const TradingDashboardChart: React.FC<TradingDashboardChartProps> = ({
           })
       },
       yaxis: {
+        gridcolor: '#f1f5f9',
+        zeroline: false,
+        tickfont: { size: 10, color: '#64748b', family: 'Inter' },
         side: 'right',
-        showgrid: true,
-        gridcolor: '#212631',
-        tickfont: { color: '#8b949e', size: 10 },
-        range: [minPrice - padding, maxPrice + padding],
-        tickformat: '.5f',
-        zeroline: false
+        spikemode: 'across',
+        spikesnap: 'data',
+        spikethickness: 1,
+        spikecolor: '#2563eb',
+        spikedash: 'dot',
       },
       yaxis3: {
         title: 'RSI / MACD',
@@ -243,14 +245,19 @@ const TradingDashboardChart: React.FC<TradingDashboardChartProps> = ({
         overlaying: 'y',
         position: 0.95,
         showgrid: false,
-        tickfont: { color: '#8b949e', size: 8 }
+        tickfont: { color: '#64748b', size: 8 }
       },
-      plot_bgcolor: 'transparent',
-      paper_bgcolor: 'transparent',
+      plot_bgcolor: '#ffffff',
+      paper_bgcolor: '#ffffff',
+      margin: { l: 0, r: 50, t: 10, b: 30 },
       font: { family: 'Inter, sans-serif' },
-      showlegend: false,
-      margin: { l: 10, r: 50, t: 30, b: 30 },
-      height: 700
+      height: 700,
+      hovermode: 'x unified',
+      hoverlabel: {
+        bgcolor: '#ffffff',
+        bordercolor: '#e2e8f0',
+        font: { color: '#0f172a', size: 12, family: 'Inter' }
+      }
     };
 
     return baseLayout;
