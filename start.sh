@@ -1,181 +1,97 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# QuantBotFX – Start backend (C++) + frontend (React)
+set -euo pipefail
 
-# QuantBotForex Quick Start Script
-# This script starts both backend and frontend services
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+GRN='\033[0;32m'; YLW='\033[1;33m'; RED='\033[0;31m'; BLU='\033[0;34m'; NC='\033[0m'
+info()  { echo -e "${GRN}[✓]${NC} $*"; }
+warn()  { echo -e "${YLW}[!]${NC} $*"; }
+error() { echo -e "${RED}[✗]${NC} $*"; exit 1; }
+head()  { echo -e "\n${BLU}▶  $*${NC}"; }
 
-set -e  # Exit on any error
+BACKEND_PID=""
+FRONTEND_PID=""
 
-echo "🚀 QuantBotForex Quick Start"
-echo "============================="
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Function to print colored output
-print_status() {
-    echo -e "${GREEN}[INFO]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-print_header() {
-    echo -e "${BLUE}$1${NC}"
-}
-
-# Check if services are already running
-check_running_services() {
-    print_header "Checking running services..."
-    
-    # Check backend
-    if lsof -i :8000 > /dev/null 2>&1; then
-        print_warning "Backend already running on port 8000"
-        BACKEND_RUNNING=true
-    else
-        print_status "Backend not running"
-        BACKEND_RUNNING=false
-    fi
-    
-    # Check frontend
-    if lsof -i :3000 > /dev/null 2>&1; then
-        print_warning "Frontend already running on port 3000"
-        FRONTEND_RUNNING=true
-    else
-        print_status "Frontend not running"
-        FRONTEND_RUNNING=false
-    fi
-}
-
-# Start backend
-start_backend() {
-    if [ "$BACKEND_RUNNING" = true ]; then
-        print_status "Backend already running, skipping..."
-        return
-    fi
-    
-    print_header "Starting Backend..."
-    
-    if [ ! -f "backend/app.py" ]; then
-        print_error "Backend app.py not found. Please run setup.sh first."
-        exit 1
-    fi
-    
-    cd backend
-    
-    # Check if virtual environment exists
-    if [ ! -d "../.venv" ]; then
-        print_error "Virtual environment not found. Please run setup.sh first."
-        exit 1
-    fi
-    
-    print_status "Activating virtual environment..."
-    source ../.venv/bin/activate
-    
-    print_status "Starting FastAPI backend on port 8000..."
-    python3 app.py &
-    BACKEND_PID=$!
-    
-    cd ..
-    
-    # Wait a moment for backend to start
-    sleep 3
-    
-    # Check if backend started successfully
-    if curl -s http://localhost:8000/health > /dev/null 2>&1; then
-        print_status "✅ Backend started successfully (PID: $BACKEND_PID)"
-    else
-        print_warning "Backend may still be starting up..."
-    fi
-}
-
-# Start frontend
-start_frontend() {
-    if [ "$FRONTEND_RUNNING" = true ]; then
-        print_status "Frontend already running, skipping..."
-        return
-    fi
-    
-    print_header "Starting Frontend..."
-    
-    if [ ! -f "frontend/package.json" ]; then
-        print_error "Frontend package.json not found. Please run setup.sh first."
-        exit 1
-    fi
-    
-    cd frontend
-    
-    print_status "Starting React frontend on port 3000..."
-    npm start &
-    FRONTEND_PID=$!
-    
-    cd ..
-    
-    print_status "✅ Frontend started successfully (PID: $FRONTEND_PID)"
-}
-
-# Show service status
-show_status() {
-    print_header "Service Status"
-    echo ""
-    echo "Backend:  http://localhost:8000"
-    echo "Frontend: http://localhost:3000"
-    echo "API Docs: http://localhost:8000/docs"
-    echo ""
-    echo "To stop services:"
-    echo "  pkill -f 'python app.py'  # Stop backend"
-    echo "  pkill -f 'npm start'       # Stop frontend"
-    echo ""
-    echo "Press Ctrl+C to stop this script (services will continue running)"
-}
-
-# Cleanup function
 cleanup() {
     echo ""
-    print_warning "Stopping QuantBotForex services..."
-    
-    # Stop backend
-    if [ ! -z "$BACKEND_PID" ]; then
-        print_status "Stopping backend (PID: $BACKEND_PID)..."
-        kill $BACKEND_PID 2>/dev/null || true
-    fi
-    
-    # Stop frontend
-    if [ ! -z "$FRONTEND_PID" ]; then
-        print_status "Stopping frontend (PID: $FRONTEND_PID)..."
-        kill $FRONTEND_PID 2>/dev/null || true
-    fi
-    
-    print_status "Services stopped"
+    warn "Shutting down QuantBotFX…"
+    [ -n "$BACKEND_PID"  ] && kill "$BACKEND_PID"  2>/dev/null && info "Backend stopped"
+    [ -n "$FRONTEND_PID" ] && kill "$FRONTEND_PID" 2>/dev/null && info "Frontend stopped"
     exit 0
 }
-
-# Set up signal handlers
 trap cleanup SIGINT SIGTERM
 
-# Main function
-main() {
-    print_header "Starting QuantBotForex services..."
-    
-    check_running_services
-    start_backend
-    start_frontend
-    show_status
-    
-    # Keep script running
-    print_status "Services are running. Press Ctrl+C to stop."
-    while true; do
-        sleep 10
-    done
+# ── PORT GUARD ────────────────────────────────────────────────────────────────
+kill_port() {
+    local pid=$(lsof -t -i :"$1")
+    if [ -n "$pid" ]; then
+        warn "Port $1 is busy (PID $pid) – terminating process…"
+        kill -9 "$pid" 2>/dev/null || true
+        sleep 1
+    fi
 }
+kill_port 8000
+kill_port 3000
 
-# Run main function
-main "$@"
+# ── DATABASE ──────────────────────────────────────────────────────────────────
+head "Verifying Database (Docker)"
+if ! docker ps | grep -q quantbot_db; then
+    warn "quantbot_db container not running – starting now…"
+    docker-compose up -d
+fi
+
+# Wait for DB to be ready
+for i in $(seq 1 10); do
+    if docker exec quantbot_db pg_isready -U quantuser -d quantbot &>/dev/null; then
+        info "Database is ready ✓"
+        break
+    fi
+    sleep 1
+    [ "$i" -eq 10 ] && warn "Database took too long to start – backend might fail to connect"
+done
+
+# ── BACKEND ───────────────────────────────────────────────────────────────────
+head "Starting C++ Backend"
+BINARY="$ROOT/backend/build/quantbot_backend"
+
+if [ ! -f "$BINARY" ]; then
+    warn "Binary not found – building now…"
+    bash "$ROOT/build_cpp_backend.sh"
+fi
+
+"$BINARY" &
+BACKEND_PID=$!
+info "Backend PID: $BACKEND_PID"
+
+# Wait for health check (max 10 s)
+for i in $(seq 1 10); do
+    sleep 1
+    if curl -sf http://localhost:8000/health &>/dev/null; then
+        info "Backend healthy ✓"
+        break
+    fi
+    [ "$i" -eq 10 ] && warn "Backend health check timed out – check logs"
+done
+
+# ── FRONTEND ──────────────────────────────────────────────────────────────────
+head "Starting React Frontend"
+[ -d "$ROOT/frontend/node_modules" ] || (cd "$ROOT/frontend" && npm install)
+
+cd "$ROOT/frontend"
+REACT_APP_API_URL=http://localhost:8000 npm start &
+FRONTEND_PID=$!
+cd "$ROOT"
+info "Frontend PID: $FRONTEND_PID"
+
+# ── STATUS ────────────────────────────────────────────────────────────────────
+echo ""
+echo "  ┌─────────────────────────────────────────────┐"
+echo "  │  QuantBotFX  ·  Running                     │"
+echo "  │  Backend  →  http://localhost:8000           │"
+echo "  │  Frontend →  http://localhost:3000           │"
+echo "  │                                              │"
+echo "  │  Press Ctrl+C to stop all services           │"
+echo "  └─────────────────────────────────────────────┘"
+echo ""
+
+wait
