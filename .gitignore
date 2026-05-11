@@ -245,7 +245,7 @@ logs/
 # Data files
 data/
 *.csv
-*.json
+data/*.json
 *.pkl
 *.pickle
 
@@ -319,9 +319,9 @@ dist/
 out/
 
 # Docker
-.dockerignore
-Dockerfile
-docker-compose.yml
+#.dockerignore
+#Dockerfile
+#docker-compose.yml
 docker-compose.override.yml
 
 # Kubernetes
