@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import tradingLevelsService, { TradingLevel } from '../../services/tradingLevelsService';
+import { fetchCandles, type Candle, type Indicators } from '../../services/api';
 
 // Import Plotly dynamically
 let Plot: any = null;
@@ -8,29 +8,12 @@ if (typeof window !== 'undefined') {
   Plot = require('react-plotly.js').default;
 }
 
-export interface CandleData {
-  timestamp: number;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume?: number;
-}
-
-export interface IndicatorData {
-  name: string;
-  data: Array<{ timestamp: number; value: number }>;
-  color: string;
-  type: 'line' | 'histogram';
-  overlay: boolean;
-}
-
 interface TradingDashboardChartProps {
-  data: CandleData[];
-  indicators: IndicatorData[];
+  data: Candle[];
+  indicators: Indicators | null;
   timeframe: string;
   symbol: string;
-  onDataUpdate?: (data: CandleData[]) => void;
+  onDataUpdate?: (data: Candle[]) => void;
   showLevels?: boolean;
 }
 
@@ -42,16 +25,14 @@ const TradingDashboardChart: React.FC<TradingDashboardChartProps> = ({
   onDataUpdate,
   showLevels = true,
 }) => {
-  const [realData, setRealData] = useState<CandleData[]>([]);
+  const [realData, setRealData] = useState<Candle[]>([]);
   const [loading, setLoading] = useState(false);
-  const [dataSource, setDataSource] = useState<string>('');
-  const [isRealData, setIsRealData] = useState(false);
 
   // Cache for storing fetched data to prevent unnecessary re-fetches
-  const [dataCache, setDataCache] = useState<{[key: string]: CandleData[]}>({});
+  const [dataCache, setDataCache] = useState<{[key: string]: Candle[]}>({});
   const [lastFetchTime, setLastFetchTime] = useState<{[key: string]: number}>({});
   
-  // Fetch real OANDA data with consistent caching
+  // Fetch real data with consistent caching
   const fetchRealData = useCallback(async (forceRefresh = false) => {
     if (!symbol || !timeframe) return;
     
@@ -62,54 +43,28 @@ const TradingDashboardChart: React.FC<TradingDashboardChartProps> = ({
     
     // Use cached data if available and not expired
     if (!forceRefresh && dataCache[cacheKey] && cacheValid) {
-      console.log(`✅ Using cached data for ${cacheKey} (${dataCache[cacheKey].length} candles)`);
       setRealData(dataCache[cacheKey]);
-      setDataSource('Backend API (Cached)');
-      setIsRealData(true);
       return;
     }
     
     setLoading(true);
     try {
-      const response = await axios.get(`/api/candles/${symbol}/${timeframe}`, {
-        params: {
-          limit: 1000 // Increased limit for more data
-        }
-      });
+      const oandaData = await fetchCandles(symbol, timeframe);
       
-      if (response.data && response.data.data && Array.isArray(response.data.data)) {
-        const oandaData = response.data.data.map((candle: any) => ({
-          timestamp: candle.timestamp,
-          open: candle.open,
-          high: candle.high,
-          low: candle.low,
-          close: candle.close,
-          volume: candle.volume || 0
-        }));
-
+      if (Array.isArray(oandaData)) {
         // Cache the data
         setDataCache(prev => ({ ...prev, [cacheKey]: oandaData }));
         setLastFetchTime(prev => ({ ...prev, [cacheKey]: now }));
         
         setRealData(oandaData);
-        setDataSource('Backend API');
-        setIsRealData(true);
         
         if (onDataUpdate) {
           onDataUpdate(oandaData);
         }
-        console.log(`✅ Fetched ${oandaData.length} candles from Backend API (${forceRefresh ? 'forced refresh' : 'new data'})`);
-      } else {
-        console.warn('⚠️ Invalid data format from Backend API');
-        setRealData([]);
-        setDataSource('Invalid Data');
-        setIsRealData(false);
       }
     } catch (error) {
       console.error('❌ Error fetching real data:', error);
       setRealData([]);
-      setDataSource('Error');
-      setIsRealData(false);
     } finally {
       setLoading(false);
     }
@@ -144,23 +99,6 @@ const TradingDashboardChart: React.FC<TradingDashboardChartProps> = ({
     return unsubscribe;
   }, [symbol, showLevels]);
 
-  // Separate overlay and non-overlay indicators
-  const overlayIndicators = useMemo(() => 
-    indicators.filter(indicator => indicator.overlay), [indicators]
-  );
-  
-  const nonOverlayIndicators = useMemo(() => 
-    indicators.filter(indicator => !indicator.overlay), [indicators]
-  );
-
-  // Calculate number of subplots needed
-  const numSubplots = useMemo(() => {
-    let subplots = 1; // Main price chart
-    if (nonOverlayIndicators.length > 0) {
-      subplots += 1; // One subplot for all non-overlay indicators
-    }
-    return subplots;
-  }, [nonOverlayIndicators.length]);
 
   // Prepare chart data
   const allData = useMemo(() => {
@@ -182,37 +120,59 @@ const TradingDashboardChart: React.FC<TradingDashboardChartProps> = ({
       }
     ];
 
-    // Add overlay indicators
-    overlayIndicators.forEach(indicator => {
-      traces.push({
-        x: indicator.data.map((_, index) => index), // Continuous indices for even spacing
-        y: indicator.data.map(d => d.value),
-        type: 'scatter',
-        mode: 'lines',
-        name: indicator.name,
-        line: { color: indicator.color, width: 2 },
-        yaxis: 'y',
-        customdata: indicator.data.map(d => d.timestamp), // Keep timestamps for hover
-        hovertemplate: `<b>${indicator.name}</b><br>Time: %{customdata|%Y-%m-%d %H:%M}<br>Value: %{y}<extra></extra>`
-      });
-    });
-
-    // Add non-overlay indicators to subplot
-    if (nonOverlayIndicators.length > 0) {
-      nonOverlayIndicators.forEach(indicator => {
+    // Add indicators from backend
+    if (indicators) {
+      // SMA 20 (Overlay)
+      if (indicators.sma_20 && indicators.sma_20.length > 0) {
         traces.push({
-          x: indicator.data.map((_, index) => index), // Continuous indices for even spacing
-          y: indicator.data.map(d => d.value),
-          type: indicator.type === 'histogram' ? 'bar' : 'scatter',
-          mode: indicator.type === 'histogram' ? undefined : 'lines',
-          name: indicator.name,
-          line: indicator.type === 'histogram' ? undefined : { color: indicator.color, width: 2 },
-          marker: indicator.type === 'histogram' ? { color: indicator.color, opacity: 0.8 } : undefined,
-          yaxis: 'y3',
-          customdata: indicator.data.map(d => d.timestamp), // Keep timestamps for hover
-          hovertemplate: `<b>${indicator.name}</b><br>Time: %{customdata|%Y-%m-%d %H:%M}<br>Value: %{y}<extra></extra>`
+          x: displayData.map((_, index) => index),
+          y: indicators.sma_20,
+          type: 'scatter',
+          mode: 'lines',
+          name: 'SMA 20',
+          line: { color: '#3b82f6', width: 1.5 },
+          yaxis: 'y'
         });
-      });
+      }
+
+      // EMA 50 (Overlay)
+      if (indicators.ema_50 && indicators.ema_50.length > 0) {
+        traces.push({
+          x: displayData.map((_, index) => index),
+          y: indicators.ema_50,
+          type: 'scatter',
+          mode: 'lines',
+          name: 'EMA 50',
+          line: { color: '#f59e0b', width: 1.5 },
+          yaxis: 'y'
+        });
+      }
+
+      // RSI 14 (Subplot)
+      if (indicators.rsi_14 && indicators.rsi_14.length > 0) {
+        traces.push({
+          x: displayData.map((_, index) => index),
+          y: indicators.rsi_14,
+          type: 'scatter',
+          mode: 'lines',
+          name: 'RSI 14',
+          line: { color: '#8b5cf6', width: 1.5 },
+          yaxis: 'y3'
+        });
+      }
+
+      // MACD (Subplot)
+      if (indicators.macd && indicators.macd.length > 0) {
+        traces.push({
+          x: displayData.map((_, index) => index),
+          y: indicators.macd,
+          type: 'scatter',
+          mode: 'lines',
+          name: 'MACD',
+          line: { color: '#ec4899', width: 1.5 },
+          yaxis: 'y3'
+        });
+      }
     }
 
     // Add level traces (multi-timeframe)
@@ -236,16 +196,16 @@ const TradingDashboardChart: React.FC<TradingDashboardChartProps> = ({
     }
 
     return traces;
-  }, [displayData, symbol, timeframe, overlayIndicators, nonOverlayIndicators, levels, showLevels]);
+  }, [displayData, symbol, timeframe, indicators, levels, showLevels]);
 
   // Chart layout
   const layout = useMemo(() => {
     // Calculate price range for better y-axis
     const prices = displayData.flatMap(d => [d.open, d.high, d.low, d.close]);
-    const minPrice = Math.min(...prices);
-    const maxPrice = Math.max(...prices);
+    const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+    const maxPrice = prices.length > 0 ? Math.max(...prices) : 100;
     const priceRange = maxPrice - minPrice;
-    const padding = priceRange * 0.1; // 10% padding
+    const padding = priceRange * 0.1; 
     
     const baseLayout: any = {
       xaxis: {
@@ -277,6 +237,14 @@ const TradingDashboardChart: React.FC<TradingDashboardChartProps> = ({
         tickformat: '.5f',
         zeroline: false
       },
+      yaxis3: {
+        title: 'RSI / MACD',
+        side: 'right',
+        overlaying: 'y',
+        position: 0.95,
+        showgrid: false,
+        tickfont: { color: '#8b949e', size: 8 }
+      },
       plot_bgcolor: 'transparent',
       paper_bgcolor: 'transparent',
       font: { family: 'Inter, sans-serif' },
@@ -285,19 +253,8 @@ const TradingDashboardChart: React.FC<TradingDashboardChartProps> = ({
       height: 700
     };
 
-    // Add subplot for non-overlay indicators
-    if (nonOverlayIndicators.length > 0) {
-      baseLayout.yaxis3 = {
-        title: 'Indicators',
-        side: 'right',
-        overlaying: 'y',
-        position: 0.95,
-        showgrid: false
-      };
-    }
-
     return baseLayout;
-  }, [symbol, timeframe, nonOverlayIndicators.length, displayData]);
+  }, [timeframe, displayData]);
 
   const config = {
     displayModeBar: true,

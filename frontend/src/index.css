@@ -5,17 +5,19 @@
 @tailwind utilities;
 
 :root {
-  --bg-main: #06070a;
-  --bg-surface: #0e1117;
-  --bg-surface-elevated: #161b22;
-  --border-subtle: #212631;
+  --bg-main: #020408;
+  --bg-surface: rgba(13, 17, 23, 0.7);
+  --bg-surface-elevated: rgba(22, 27, 34, 0.8);
+  --border-subtle: rgba(48, 54, 61, 0.5);
   --text-main: #f0f6fc;
   --text-muted: #8b949e;
-  --accent-primary: #2f81f7;
-  --accent-success: #238636;
-  --accent-danger: #da3633;
-  --accent-warning: #d29922;
-  --sidebar-width: 260px;
+  --accent-primary: #3b82f6;
+  --accent-secondary: #8b5cf6;
+  --accent-success: #10b981;
+  --accent-danger: #ef4444;
+  --accent-warning: #f59e0b;
+  --sidebar-width: 280px;
+  --panel-radius: 24px;
 }
 
 @layer base {
@@ -39,77 +41,46 @@
 
 @layer components {
   .glass {
-    @apply bg-[var(--bg-surface)] border border-[var(--border-subtle)] backdrop-blur-md;
+    @apply bg-[var(--bg-surface)] border border-[var(--border-subtle)] backdrop-blur-xl shadow-2xl;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   }
 
   .glass-elevated {
-    @apply bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] shadow-xl;
+    @apply bg-[var(--bg-surface-elevated)] border border-white/10 shadow-2xl backdrop-blur-2xl;
+  }
+
+  .premium-card {
+    @apply glass rounded-[var(--panel-radius)] p-6 transition-all duration-300 hover:border-white/20;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
   }
 
   .btn-trading {
-    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+    @apply px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .btn-trading-primary {
-    @apply btn-trading bg-[var(--accent-primary)] text-white hover:bg-blue-500 shadow-lg shadow-blue-500/20;
+    @apply btn-trading bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-500/20;
   }
 
-  .btn-trading-outline {
-    @apply btn-trading border border-[var(--border-subtle)] hover:bg-[var(--bg-surface-elevated)] text-[var(--text-main)];
+  .glow-text {
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
   }
 
-  .input-trading {
-    @apply bg-[var(--bg-main)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-[var(--text-muted)];
+  .glow-green-text {
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
   }
 
-  .panel-header {
-    @apply text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-4 flex items-center gap-2;
+  .glow-red-text {
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
   }
 
-  .data-value {
-    font-family: 'JetBrains Mono', monospace;
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.05); }
   }
 
-  /* Full Screen Layout Utilities */
-  .viewport-height {
-    height: calc(100vh - 64px); /* Header height */
-  }
-
-  .chart-container-full {
-    width: 100%;
-    height: 100%;
-    position: relative;
-  }
-
-  @keyframes slide-in {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-
-  @keyframes fade-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .animate-slide-in {
-    animation: slide-in 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  .animate-fade-in {
-    animation: fade-in 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  /* Glow effects */
-  .glow-blue {
-    @apply shadow-[0_0_15px_rgba(59,130,246,0.2)];
-  }
-
-  .glow-green {
-    @apply shadow-[0_0_15px_rgba(34,197,94,0.2)];
-  }
-
-  .glow-red {
-    @apply shadow-[0_0_15px_rgba(239,68,68,0.2)];
+  .animate-pulse-slow {
+    animation: pulse-slow 4s infinite ease-in-out;
   }
 }
 

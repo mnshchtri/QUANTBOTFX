@@ -11,12 +11,17 @@ const TradingLevelsPanel: React.FC<TradingLevelsPanelProps> = ({ symbol, timefra
   const [levels, setLevels] = useState<TradingLevel[]>([]);
 
   useEffect(() => {
-    const unsubscribe = tradingLevelsService.subscribe(() => {
-      setLevels(tradingLevelsService.getMultiTimeframeLevels(symbol));
+    const loadLevels = async () => {
+      const data = await tradingLevelsService.getTradingLevels(symbol, timeframe);
+      setLevels(data);
+    };
+    loadLevels();
+
+    const unsubscribe = tradingLevelsService.subscribe((newLevels) => {
+      setLevels(newLevels);
     });
-    setLevels(tradingLevelsService.getMultiTimeframeLevels(symbol));
     return unsubscribe;
-  }, [symbol]);
+  }, [symbol, timeframe]);
 
   return (
     <div className="glass rounded-2xl overflow-hidden flex flex-col h-[400px]">
