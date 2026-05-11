@@ -121,7 +121,7 @@ function App() {
         <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-indigo-600/10 blur-[120px] rounded-full animate-pulse-slow" />
       </div>
 
-      <div className="flex flex-1 overflow-hidden p-6 gap-6 relative z-10">
+      <div className="flex flex-1 overflow-hidden p-4 pb-28 gap-4 relative z-10">
         {/* LEFT PANEL */}
         <AnimatePresence>
           {leftPanelOpen && (
@@ -141,7 +141,7 @@ function App() {
 
         {/* CENTER - CHART */}
         <div className="flex-1 h-full min-w-0">
-          <div className="h-full premium-card overflow-hidden bg-white border-slate-100 shadow-sm flex flex-col">
+          <div className="h-full premium-card overflow-hidden bg-white border-slate-100 shadow-sm flex flex-col relative">
             <TradingDashboardChart 
               symbol={symbol} 
               timeframe={timeframe} 
@@ -172,31 +172,31 @@ function App() {
       </div>
 
       {/* BOTTOM HUD */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4">
         <motion.div 
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="bg-white/90 border border-slate-100 rounded-[32px] h-20 flex items-center px-8 gap-8 shadow-xl shadow-slate-200/50 backdrop-blur-3xl min-w-[650px]"
+          className="bg-white/90 border border-slate-200 rounded-[32px] h-20 flex items-center px-8 gap-8 shadow-2xl shadow-slate-200/50 backdrop-blur-3xl min-w-[650px]"
         >
           <div className="flex gap-4">
             <button onClick={() => executeTrade('buy')} className="px-8 py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-[0.2em] bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-600/20 transition-all">Buy Long</button>
-            <button onClick={() => executeTrade('sell')} className="px-8 py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-[0.2em] bg-red-600/10 border border-red-600/20 text-red-500 hover:bg-red-600/20 transition-all">Sell Short</button>
+            <button onClick={() => executeTrade('sell')} className="px-8 py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-[0.2em] bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-100 transition-all">Sell Short</button>
           </div>
           
-          <div className="h-10 w-[1px] bg-white/5" />
+          <div className="h-10 w-[1px] bg-slate-200" />
           
           <div className="flex gap-10">
             <div className="flex flex-col">
-              <span className="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em]">Lot</span>
-              <span className="text-sm font-bold font-mono text-white">0.10</span>
+              <span className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em]">Lot</span>
+              <span className="text-sm font-bold font-mono text-slate-900">0.10</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em]">Margin</span>
-              <span className="text-sm font-bold font-mono text-blue-400">1:500</span>
+              <span className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em]">Margin</span>
+              <span className="text-sm font-bold font-mono text-blue-600">1:500</span>
             </div>
           </div>
 
-          <button onClick={() => setBottomPanelOpen(!bottomPanelOpen)} className="ml-auto p-3 bg-white/5 border border-white/5 rounded-2xl text-slate-400 hover:text-blue-400 transition-all">
+          <button onClick={() => setBottomPanelOpen(!bottomPanelOpen)} className="ml-auto p-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-400 hover:text-blue-600 hover:bg-white transition-all shadow-sm">
             <Terminal className="w-5 h-5" />
           </button>
         </motion.div>
