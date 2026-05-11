@@ -9,17 +9,10 @@ on:
 
 env:
   DOCKER_IMAGE_NAME: mnshchtri/quantbotfx
-  GOOGLE_CHAT_WEBHOOK: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-      DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
-      GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
-      GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
-      GOOGLE_CHAT_WEBHOOK_VAL: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
 
     steps:
       - name: Checkout Code
@@ -44,10 +37,6 @@ jobs:
           VERSION=$(grep '"version":' frontend/package.json | cut -d '"' -f 4 || echo "1.0.0")
           IMAGE_TAG="v${VERSION}.${{ github.run_number }}"
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
-          echo "tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
-          echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          echo "commit_msg=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
-          echo "author_name=$(git log -1 --pretty=format:'%an')" >> $GITHUB_ENV
 
       - name: Backend CI
         run: |
@@ -58,21 +47,21 @@ jobs:
       - name: Frontend CI
         run: |
           cd frontend
-          npm install
+          npm ci
           CI=false npm run build
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        if: github.event_name != 'pull_request' && env.DOCKER_HUB_USERNAME != '' && env.DOCKER_HUB_TOKEN != ''
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          username: mnshchtri
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Build and Push Docker Image
-        if: github.event_name != 'pull_request' && env.DOCKER_HUB_USERNAME != '' && env.DOCKER_HUB_TOKEN != ''
+        if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -83,43 +72,3 @@ jobs:
             ${{ env.DOCKER_IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Deploy (GitOps)
-        if: github.event_name != 'pull_request' && env.GIT_USERNAME != '' && env.GIT_PASSWORD != ''
-        env:
-          GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
-          GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
-        run: |
-          CHART_REPO="github.com/mnshchtri/quantbotfx-chart.git"
-          CLONE_DIR="quantbotfx-chart"
-
-          rm -rf ${CLONE_DIR}
-          git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@${CHART_REPO} ${CLONE_DIR}
-
-          cd ${CLONE_DIR}
-          # Update image tag in values-dev.yaml
-          sed -i 's/tag: .*/tag: "'${IMAGE_TAG}'"/g' values-dev.yaml
-
-          git config user.email "mnshchtri@gmail.com"
-          git config user.name "mnshchtri"
-          git add values-dev.yaml
-          git commit -m "chore: update image tag to ${IMAGE_TAG} [skip ci]" || echo "No changes to commit"
-          git push origin main
-
-      - name: Notify Success
-        if: success() && env.GOOGLE_CHAT_WEBHOOK_VAL != ''
-        run: |
-          curl -X POST -H 'Content-Type: application/json' \
-          "${{ secrets.GOOGLE_CHAT_WEBHOOK }}" \
-          -d '{
-            "text": "*Build SUCCESS* — ${{ github.repository }} *#${{ github.run_number }}*\n\n *Branch:* `${{ github.ref_name }}`\n *Commit:* `${{ env.short_sha }}` — ${{ env.commit_msg }}\n *Author:* ${{ env.author_name }}\n\n *Image Name:* `${{ env.DOCKER_IMAGE_NAME }}`\n *Tags Pushed:*\n • `${{ env.DOCKER_IMAGE_NAME }}:${{ env.IMAGE_TAG }}`\n • `${{ env.DOCKER_IMAGE_NAME }}:latest`\n\n *Action:* https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          }'
-
-      - name: Notify Failure
-        if: failure() && env.GOOGLE_CHAT_WEBHOOK_VAL != ''
-        run: |
-          curl -X POST -H 'Content-Type: application/json' \
-          "${{ secrets.GOOGLE_CHAT_WEBHOOK }}" \
-          -d '{
-            "text": "*Build FAILED* — ${{ github.repository }} *#${{ github.run_number }}*\n\n *Branch:* `${{ github.ref_name }}`\n *Commit:* `${{ env.short_sha }}` — ${{ env.commit_msg }}\n *Author:* ${{ env.author_name }}\n\n *Action:* https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          }'
